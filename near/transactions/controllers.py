@@ -145,10 +145,10 @@ logger.info("raw contract interaction", raw=serialize_tx(craft_get_all_shop_pos)
 
 @router.post("/craft", response_model=str, summary="Craft raw transaction")
 def craft_raw_transaction(tx: NearTransaction) -> str:
+    logger.info("tx", **tx.dict())
     return serialize_tx(tx).hex()
 
 
 @router.post("/broadcast", response_model=str, summary="Broadcast a signed tx")
 def broadcast_signed_transaction(tx: SignedTransaction):
-    deserialized = BinarySerializer(tx_schema)
     raise NotImplementedError()
