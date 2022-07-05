@@ -40,7 +40,16 @@ payload_list = [
 ]
 
 
-@pytest.mark.parametrize("crafting_payload", payload_list)
+@pytest.mark.parametrize(
+    "crafting_payload",
+    payload_list
+    + [
+        {
+            "sender": "aube.near",
+            "action": {"receiver": "blocktail.near", "amount": "100"},
+        }
+    ],
+)
 def test_simple_craft(client, signer, crafting_payload):
     response = client.post(
         "/craft",
