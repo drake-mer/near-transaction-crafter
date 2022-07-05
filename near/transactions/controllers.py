@@ -76,10 +76,10 @@ class TxDynamicParameters(BaseModel):
     gas_price: int
 
 
-def get_tx_info(sender) -> TxDynamicParameters:
-    account = provider.get_account(sender, finality="final")
-    block = provider.json_rpc("block", {"finality": "final"})["header"]
-    access_key = provider.get_access_key_list(sender, finality="final")
+def get_tx_info(sender, finality="optimistic") -> TxDynamicParameters:
+    account = provider.get_account(sender, finality=finality)
+    block = provider.json_rpc("block", {"finality": finality})["header"]
+    access_key = provider.get_access_key_list(sender, finality=finality)
     logger.info("access key", access_keys=access_key)
     key_list = access_key["keys"]
     first_key, *args = key_list

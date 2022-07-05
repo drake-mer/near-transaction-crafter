@@ -23,52 +23,50 @@ def client():
     yield TestClient(app)
 
 
-def test_simple_craft(client, signer):
+payload_list = [
+    {
+        "sender": "davidkremer.testnet",
+        "action": {"receiver": "maximilien.testnet", "amount": "100000000000000000000"},
+    },
+    {
+        "sender": "davidkremer.testnet",
+        "action": {
+            "receiver": "maximilien.testnet",
+            "amount": "100000000000000000000000",
+            "function": "get_all_shop_pos",
+            "arguments": [],
+        },
+    },
+]
+
+
+@pytest.mark.parametrize("crafting_payload", payload_list)
+def test_simple_craft(client, signer, crafting_payload):
     response = client.post(
         "/craft",
-        json={
-            "sender": "davidkremer.testnet",
-            "action": {
-                "receiver": "maximilien.testnet",
-                "amount": f"{10**20}",
-            },
-        },
+        json=crafting_payload,
     )
     assert response.status_code == 200
     raw_tx = response.json()
     assert isinstance(raw_tx, str)
 
 
-def test_offline_signature(client, signer):
+@pytest.mark.parametrize("crafting_payload", payload_list)
+def test_offline_signature(client, signer, crafting_payload):
     response = client.post(
         "/craft",
-        json={
-            "sender": "davidkremer.testnet",
-            "action": {
-                "receiver": "maximilien.testnet",
-                "amount": f"{10**20}",
-            },
-        },
+        json=crafting_payload,
     )
     raw_tx = response.json()
     signature = signer.sign(hashlib.sha256(bytes.fromhex(raw_tx)).digest()).hex()
-    # encoded_signature = Signature()
-    # encoded_signature.keyType = 0
-    # encoded_signature.data = signature
-    # raw_signature = BinarySerializer(tx_schema).serialize(encoded_signature).hex()
     response = client.post("/broadcast", json={"raw": raw_tx, "signature": signature})
     assert response.status_code == 200
 
 
-def test_simple_sign_and_broadcast(client, signer):
+@pytest.mark.parametrize("crafting_payload", payload_list)
+def test_simple_sign_and_broadcast(client, signer, crafting_payload):
     broadcast = client.post(
         "/sign",
-        json={
-            "sender": "davidkremer.testnet",
-            "action": {
-                "receiver": "maximilien.testnet",
-                "amount": f"{10**20}",
-            },
-        },
+        json=crafting_payload,
     )
     assert broadcast.status_code == 200
