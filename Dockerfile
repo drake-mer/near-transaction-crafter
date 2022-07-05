@@ -20,6 +20,7 @@ ENV PIPENV_VENV_IN_PROJECT=1
 ENV VIRTUAL_ENV="/app/.venv"
 ENV PATH="/app/.venv/bin:${PATH}"
 ENV PYTHONPATH="/app/near:${PYTHONPATH}"
+EXPOSE 5999
 
 # TODO: Switch to run prod when ready
 ENTRYPOINT ["pipenv", "run"]
