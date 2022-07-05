@@ -1,0 +1,48 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[[source]]
+url = "https://${PYPI_DEPLOY_TOKEN}:@pypi.fury.io/ledger/"
+verify_ssl = true
+name = "fury"
+
+[dev-packages]
+pre-commit = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-httpserver = "*"
+requests-mock = "*"
+mypy = "*"
+ipdb = "*"
+isort = "==5.10.1"
+click = "*"
+
+[requires]
+python_version = "3.10"
+
+[packages]
+alembic = "*"
+bip-utils = "*"
+gunicorn = "*"
+fastapi = {extras = [ "all",]}
+pydantic = {extras = [ "dotenv",]}
+vault-explorers = {version = ">=1.0.0", index = "fury"}
+python-ledgercommon = {version = "*", extras = ["fastapi", "datadog"], index = "fury"}
+scalecodec = "*"
+cryptography = "*"
+typer = "*"
+xxhash = ">=3.0.0"
+near-api-py = "*"
+
+[scripts]
+dev="""
+    uvicorn \
+    --reload \
+    --port 5999 \
+    --host 0.0.0.0 \
+    --workers 2 \
+    near.app:app \
+"""
+tests="pytest tests/"

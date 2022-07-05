@@ -1,0 +1,6 @@
+.env
+.idea/*
+*.pyc
+.terraform*
+__pycache__/*
+tests/data/*metadata.tmp

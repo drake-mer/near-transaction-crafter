@@ -1,0 +1,41 @@
+# This is interesting:
+# https://rednafi.github.io/digressions/python/2020/04/06/python-precommit.html
+
+repos:
+  - # Generic file formatting (not python-specific)
+
+    repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: check-yaml
+        exclude: ^helm/.*
+      - id: end-of-file-fixer
+        exclude: ^helm/.*
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: debug-statements
+  - # Nazi-mode (aka. almost strict PEP8) formatting
+    repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        language_version: python3
+  - # Import order
+    repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
+        args: ["--profile", "black"]
+  - # Static analysis
+    repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        args:
+          - "--config=setup.cfg"
+#  - # Type hinting/checking (disabled while codebase has not been cleaned up)
+#    repo: https://github.com/pre-commit/mirrors-mypy
+#    rev: v0.812
+#    hooks:
+#      - id: mypy
