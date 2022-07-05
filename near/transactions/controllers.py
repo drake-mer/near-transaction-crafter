@@ -154,8 +154,8 @@ def craft_raw_transaction(tx: NearTransaction) -> str:
     return serialize_tx(tx).hex()
 
 
-@router.post("/broadcast", response_model=Any, summary="Broadcast a signed tx")
-def broadcast_signed_transaction(tx: NearTransaction):
+@router.post("/sign", response_model=Any, summary="Broadcast a signed tx")
+def sign_and_broadcast_transaction(tx: NearTransaction):
 
     tx_infos: TxDynamicParameters = get_tx_info(tx.sender)
     raw_signed = sign_and_serialize_transaction(
@@ -173,4 +173,15 @@ def broadcast_signed_transaction(tx: NearTransaction):
     ).hex()
     print("raw_signed", raw_signed)
     result = provider.send_tx_and_wait(bytes.fromhex(raw_signed), timeout=10)
+    return result
+
+
+@router.post("/broadcast", response_model=Any, summary="Broadcast a signed tx")
+def broadcast_signed_transaction(tx: SignedTransaction):
+    raw_tx = bytes.fromhex(tx.raw)
+    signature = Signature()
+    signature.keyType = 0
+    signature.data = bytes.fromhex(tx.signature)
+    encoded_signature = BinarySerializer(tx_schema).serialize(signature)
+    result = provider.send_tx_and_wait(raw_tx + encoded_signature, timeout=10)
     return result
