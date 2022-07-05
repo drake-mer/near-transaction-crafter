@@ -1,18 +1,15 @@
-import dataclasses
-from decimal import Decimal
-from typing import Any, Tuple, Union
+from typing import Any, Union
 
 import base58
 import pydantic
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter
 from near_api.providers import JsonProvider
 from near_api.serializer import BinarySerializer
+from near_api.signer import KeyPair, Signer
 from near_api.transactions import (
-    Action,
     PublicKey,
+    Signature,
     Transaction,
-    Transfer,
     create_function_call_action,
     create_transfer_action,
     sign_and_serialize_transaction,
@@ -94,8 +91,9 @@ def get_tx_info(sender) -> TxDynamicParameters:
     )
 
 
-tx_dynamic = get_tx_info("davidkremer.testnet")
-logger.info("sender infos", **tx_dynamic.dict())
+#
+# tx_dynamic = get_tx_info("davidkremer.testnet")
+# logger.info("sender infos", **tx_dynamic.dict())
 
 
 def serialize_tx(tx: NearTransaction) -> bytes:
@@ -105,7 +103,7 @@ def serialize_tx(tx: NearTransaction) -> bytes:
     new_tx.publicKey = PublicKey()
     new_tx.publicKey.keyType = 0
     new_tx.publicKey.data = base58.b58decode(tx_infos.pub_key.removeprefix("ed25519:"))
-    new_tx.nonce = tx_infos.nonce
+    new_tx.nonce = tx_infos.nonce + 1
     new_tx.receiverId = tx.action.receiver
     new_tx.actions = [create_action(tx)]
     new_tx.blockHash = base58.b58decode(tx_infos.block_hash)
@@ -138,9 +136,16 @@ craft_get_all_shop_pos = pydantic.parse_obj_as(
     },
 )
 
+#
+# logger.info("raw send", raw=serialize_tx(craft_raw_send_tx).hex())
+# logger.info("raw contract interaction", raw=serialize_tx(craft_get_all_shop_pos).hex())
 
-logger.info("raw send", raw=serialize_tx(craft_raw_send_tx).hex())
-logger.info("raw contract interaction", raw=serialize_tx(craft_get_all_shop_pos).hex())
+
+def make_signature(raw_sig: str):
+    signature = Signature()
+    signature.keyType = 0
+    signature.data = bytes.fromhex(raw_sig)
+    return BinarySerializer(tx_schema).serialize(signature).hex()
 
 
 @router.post("/craft", response_model=str, summary="Craft raw transaction")
@@ -149,6 +154,23 @@ def craft_raw_transaction(tx: NearTransaction) -> str:
     return serialize_tx(tx).hex()
 
 
-@router.post("/broadcast", response_model=str, summary="Broadcast a signed tx")
-def broadcast_signed_transaction(tx: SignedTransaction):
-    raise NotImplementedError()
+@router.post("/broadcast", response_model=Any, summary="Broadcast a signed tx")
+def broadcast_signed_transaction(tx: NearTransaction):
+
+    tx_infos: TxDynamicParameters = get_tx_info(tx.sender)
+    raw_signed = sign_and_serialize_transaction(
+        tx.sender,
+        tx_infos.nonce + 1,
+        [create_action(tx)],
+        base58.b58decode(tx_infos.block_hash),
+        Signer(
+            "davidkremer.testnet",
+            KeyPair(
+                "ed25519:6U5SHsVto7agV5kx4nmfAQfH8ThoBXTnSrNXKT"
+                "e1dp7RAiGvafimFn553aeSKiKKnT4iMA39iJWxzhPk6fQsKdB"
+            ),
+        ),
+    ).hex()
+    print("raw_signed", raw_signed)
+    result = provider.send_tx_and_wait(bytes.fromhex(raw_signed), timeout=10)
+    return result
