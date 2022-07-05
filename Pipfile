@@ -28,7 +28,6 @@ bip-utils = "*"
 gunicorn = "*"
 fastapi = {extras = [ "all",]}
 pydantic = {extras = [ "dotenv",]}
-vault-explorers = {version = ">=1.0.0", index = "fury"}
 scalecodec = "*"
 cryptography = "*"
 typer = "*"
