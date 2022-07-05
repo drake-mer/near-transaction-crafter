@@ -187,4 +187,5 @@ def broadcast_signed_transaction(tx: SignedTransaction):
     signature.data = bytes.fromhex(tx.signature)
     encoded_signature = BinarySerializer(tx_schema).serialize(signature)
     result = provider.send_tx_and_wait(raw_tx + encoded_signature, timeout=10)
+    logger.info("broadcast result", result)
     return result
