@@ -31,6 +31,7 @@ pydantic = {extras = [ "dotenv",]}
 scalecodec = "*"
 cryptography = "*"
 typer = "*"
+structlog = "*"
 xxhash = ">=3.0.0"
 near-api-py = "*"
 
