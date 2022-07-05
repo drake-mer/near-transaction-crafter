@@ -1,11 +1,10 @@
 import hashlib
 
 import pytest
-
 from fastapi.testclient import TestClient
+from near_api.signer import KeyPair, Signer
+
 from near.app import app
-from near_api.signer import Signer, KeyPair
-from near_api.transactions import Signature, BinarySerializer, tx_schema
 
 
 @pytest.fixture
@@ -13,7 +12,8 @@ def signer():
     return Signer(
         "davidkremer.testnet",
         KeyPair(
-            "ed25519:6U5SHsVto7agV5kx4nmfAQfH8ThoBXTnSrNXKTe1dp7RAiGvafimFn553aeSKiKKnT4iMA39iJWxzhPk6fQsKdB"
+            "ed25519:6U5SHsVto7agV5kx4nmfAQfH8ThoBXTnSrNXKT"
+            "e1dp7RAiGvafimFn553aeSKiKKnT4iMA39iJWxzhPk6fQsKdB"
         ),
     )
 
@@ -56,9 +56,7 @@ def test_offline_signature(client, signer):
     # encoded_signature.keyType = 0
     # encoded_signature.data = signature
     # raw_signature = BinarySerializer(tx_schema).serialize(encoded_signature).hex()
-    response = client.post(
-        "/broadcast", json={"raw": raw_tx, "signature": signature}
-    )
+    response = client.post("/broadcast", json={"raw": raw_tx, "signature": signature})
     assert response.status_code == 200
 
 

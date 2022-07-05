@@ -15,7 +15,7 @@ from near_api.transactions import (
     sign_and_serialize_transaction,
     tx_schema,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from structlog import get_logger
 
 logger = get_logger(__name__)
@@ -46,8 +46,11 @@ class NearTransaction(BaseModel):
 
 
 class SignedTransaction(BaseModel):
-    raw: str
-    signature: str
+    raw: str = Field(..., description="The raw transaction, unsigned")
+    signature: str = Field(
+        ...,
+        description="The raw signature of the transaction by an Ed25519 private key",
+    )
 
 
 def create_action(tx: NearTransaction):
