@@ -119,7 +119,7 @@ craft_raw_send_tx = pydantic.parse_obj_as(
         "sender": "davidkremer.testnet",
         "action": {
             "receiver": "maximilien.testnet",
-            "amount": "100000000000000000000000",
+            "amount": "1000000",
         },
     },
 )
@@ -150,4 +150,5 @@ def craft_raw_transaction(tx: NearTransaction) -> str:
 
 @router.post("/broadcast", response_model=str, summary="Broadcast a signed tx")
 def broadcast_signed_transaction(tx: SignedTransaction):
+    deserialized = BinarySerializer(tx_schema)
     raise NotImplementedError()
