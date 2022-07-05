@@ -145,8 +145,7 @@ logger.info("raw contract interaction", raw=serialize_tx(craft_get_all_shop_pos)
 
 @router.post("/craft", response_model=str, summary="Craft raw transaction")
 def craft_raw_transaction(tx: NearTransaction) -> str:
-    if isinstance(tx.action, TransferIntent):
-        action = Transfer()
+    return serialize_tx(tx).hex()
 
 
 @router.post("/broadcast", response_model=str, summary="Broadcast a signed tx")
