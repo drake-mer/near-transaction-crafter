@@ -32,7 +32,7 @@ payload_list = [
         "sender": "davidkremer.testnet",
         "action": {
             "receiver": "maximilien.testnet",
-            "amount": "100000000000000000000000",
+            "amount": "10000000000000",
             "function": "get_all_shop_pos",
             "arguments": [],
         },

@@ -25,7 +25,12 @@ MAINNET_PROVIDER = "https://rpc.mainnet.near.org"
 TESTNET_PROVIDER = "https://rpc.testnet.near.org"
 
 PROVIDER = TESTNET_PROVIDER
-provider = JsonProvider(PROVIDER)
+testnet_provider = JsonProvider(TESTNET_PROVIDER)
+mainnet_provider = JsonProvider(MAINNET_PROVIDER)
+
+
+def get_provider(sender: str):
+    return mainnet_provider if sender.endswith("near") else testnet_provider
 
 
 class TransferIntent(BaseModel):
@@ -76,7 +81,8 @@ class TxDynamicParameters(BaseModel):
     gas_price: int
 
 
-def get_tx_info(sender, finality="optimistic") -> TxDynamicParameters:
+def get_tx_info(sender: str, finality="optimistic") -> TxDynamicParameters:
+    provider = get_provider(sender)
     account = provider.get_account(sender, finality=finality)
     block = provider.json_rpc("block", {"finality": finality})["header"]
     access_key = provider.get_access_key_list(sender, finality=finality)
@@ -92,11 +98,6 @@ def get_tx_info(sender, finality="optimistic") -> TxDynamicParameters:
         nonce=first_key["access_key"]["nonce"],
         gas_price=int(gas_price),
     )
-
-
-#
-# tx_dynamic = get_tx_info("davidkremer.testnet")
-# logger.info("sender infos", **tx_dynamic.dict())
 
 
 def serialize_tx(tx: NearTransaction) -> bytes:
@@ -175,7 +176,9 @@ def sign_and_broadcast_transaction(tx: NearTransaction):
         ),
     ).hex()
     print("raw_signed", raw_signed)
-    result = provider.send_tx_and_wait(bytes.fromhex(raw_signed), timeout=10)
+    result = get_provider("testnet").send_tx_and_wait(
+        bytes.fromhex(raw_signed), timeout=10
+    )
     return result
 
 
@@ -186,6 +189,8 @@ def broadcast_signed_transaction(tx: SignedTransaction):
     signature.keyType = 0
     signature.data = bytes.fromhex(tx.signature)
     encoded_signature = BinarySerializer(tx_schema).serialize(signature)
-    result = provider.send_tx_and_wait(raw_tx + encoded_signature, timeout=10)
+    result = get_provider("testnet").send_tx_and_wait(
+        raw_tx + encoded_signature, timeout=10
+    )
     logger.info("broadcast result", result=result)
     return result
