@@ -35,8 +35,8 @@ jobs:
         uses: docker/build-push-action@v1
         with:
           build_args: PYPI_DEPLOY_TOKEN=${{ secrets.PYPI_DEPLOY_TOKEN }}
-          repository: nearcrafter/nearcrafter
-          registry: rg.fr-par.scw.cloud
-          username: nologin
-          password: 83a80f6b-5a23-4931-913f-8e1e478dfd27
+          repository: drake-mer/nearcrafter
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
           tag_with_ref: true
