@@ -29,7 +29,6 @@ gunicorn = "*"
 fastapi = {extras = [ "all",]}
 pydantic = {extras = [ "dotenv",]}
 vault-explorers = {version = ">=1.0.0", index = "fury"}
-python-ledgercommon = {version = "*", extras = ["fastapi", "datadog"], index = "fury"}
 scalecodec = "*"
 cryptography = "*"
 typer = "*"
